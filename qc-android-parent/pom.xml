@@ -24,39 +24,6 @@
 		</developer>
 	</developers>
 
-	<properties>
-		<maven.test.skip>false</maven.test.skip>
-		<encoding>UTF-8</encoding>
-		<project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
-		<maven-android-plugin.version>2.8.4</maven-android-plugin.version>
-
-		<!-- android的配置 -->
-		<android.debug>true</android.debug>
-		<android.version>1.5_r4</android.version>
-		<android.apiLevel>3</android.apiLevel>
-		<android.avdName>16</android.avdName>
-
-		<!-- 签名apk文件所用key的配置 -->
-		<key.file>C:\dragon.keystore</key.file>
-		<key.alias>dragon.keystore</key.alias>
-		<key.password>password</key.password>
-		<key.storePassword>${key.password}</key.storePassword>
-	</properties>
-
-	<profiles>
-		<!-- CMD: mvn package -Psign -Dkey.password=my_password -->
-		<profile>
-			<id>sign</id>
-			<properties>
-				<android.debug>false</android.debug>
-				<key.file>C:\dragon.keystore</key.file>
-				<key.alias>dragon.keystore</key.alias>
-				<key.password>password</key.password>
-				<key.storePassword>${key.password}</key.storePassword>
-			</properties>
-		</profile>
-	</profiles>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.google.android</groupId>
@@ -94,47 +61,36 @@
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
 
-		<!-- 替换属性文件中的${...}标记的值 -->
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-			</testResource>
-			<testResource>
-				<directory>src/test/resources</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/log4j.xml</include>
-				</includes>
-				<filtering>true</filtering>
-			</testResource>
-		</testResources>
-
+		<plugins>
+			<plugin>
+				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+				<artifactId>maven-android-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>com.jayway.maven.plugins.android.generation2</groupId>
 					<artifactId>maven-android-plugin</artifactId>
-					<version>${maven-android-plugin.version}</version>
+					<version>2.8.4</version>
+					<inherited>true</inherited>
 					<configuration>
 						<sdk>
+							<!-- Dandroid.sdk.path and -Dandroid.sdk.platform. platform or api 
+								level. Valid values are 1.1, 1.5, 1.6, 2.0, 2.01, 2.1, 2.2 as well as 3, 
+								4, 5, 6, 7, 8 -->
 							<platform>${android.apiLevel}</platform>
 						</sdk>
 						<sign>
-							<debug>${android.debug}</debug>
+							<!-- -Dandroid.sign.debug=true|false|both|auto -->
+							<debug>${android.debugSign}</debug>
 						</sign>
 						<emulator>
+							<!-- -Dandroid.emulator.avd -->
 							<avd>${android.avdName}</avd>
 						</emulator>
 						<deleteConflictingFiles>true</deleteConflictingFiles>
@@ -143,32 +99,8 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jarsigner-plugin</artifactId>
-					<version>1.2</version>
-					<executions>
-						<execution>
-							<id>signing</id>
-							<goals>
-								<goal>sign</goal>
-							</goals>
-							<phase>package</phase>
-							<inherited>true</inherited>
-							<configuration>
-								<archiveDirectory></archiveDirectory>
-								<includes>
-									<include>target/*.apk</include>
-								</includes>
-								<keystore>${key.file}</keystore>
-								<storepass>${key.storePassword}</storepass>
-								<keypass>${key.password}</keypass>
-								<alias>${key.alias}</alias>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<!-- version 2.3 defaults to java 1.5 -->
 					<version>2.3.2</version>
 					<configuration>
 						<source>1.5</source>
@@ -204,4 +136,63 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<properties>
+		<maven.test.skip>false</maven.test.skip>
+		<encoding>UTF-8</encoding>
+		<project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+
+		<!-- android的版本号：1.5_r3,1.5_r4,1.6_r2,2.1_r1,2.1.2,2.2.1,2.3.1 see:http://repo1.maven.org/maven2/com/google/android/android/ -->
+		<android.version>2.1_r1</android.version>
+		<!-- 默认使用debug签名 -->
+		<android.debugSign>true</android.debugSign>
+		<!-- 所使用模拟器的API Level  -->
+		<android.apiLevel>7</android.apiLevel>
+		<!-- 所使用模拟器的名称  -->
+		<android.avdName>2.1</android.avdName>
+	</properties>
+
+	<profiles>
+		<!-- 用自己的证书签名apk文件，CMD: mvn package -Psign -Dkey.password=my_password -->
+		<profile>
+			<id>sign</id>
+			<properties>
+				<android.debugSign>false</android.debugSign>
+				<!-- 签名apk文件所用key的配置 -->
+				<key.file>C:\DRAGON.keystore</key.file>
+				<key.alias>DRAGON</key.alias>
+				<key.password>password</key.password>
+				<key.storePassword>${key.password}</key.storePassword>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<version>1.2</version>
+						<executions>
+							<execution>
+								<id>signing</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<phase>package</phase>
+								<inherited>true</inherited>
+								<configuration>
+									<archiveDirectory></archiveDirectory>
+									<includes>
+										<include>target/*.apk</include>
+									</includes>
+									<keystore>${key.file}</keystore>
+									<storepass>${key.storePassword}</storepass>
+									<keypass>${key.password}</keypass>
+									<alias>${key.alias}</alias>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
