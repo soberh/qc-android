@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qccore_name">QcCore</string>
+    <string name="qccore_info">Your project now is dependancy qc-android-core library</string>
+</resources>

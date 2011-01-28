@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qccore_name">Qc核心库</string>
+    <string name="qccore_info">当前项目是基于qc-android-core库构建的</string>
+</resources>
